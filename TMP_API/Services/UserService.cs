@@ -39,8 +39,6 @@ public class UserService : IUserService
             ApplicationUser newUser = new();
             var check = _userManager.Users.Any(u => u.Email.Equals(model.Email) || u.UserName.Equals(model.Email));
             if (check) throw new Exception("Email Or Username already taken");
-
-            var count = _userManager.Users.Count();
             
             newUser.InjectFrom(model);
 
@@ -63,7 +61,7 @@ public class UserService : IUserService
             }
 
             await SeedRoles();
-            result = await _userManager.AddToRoleAsync(newUser, count==0 ? UserRoles.Admin : UserRoles.User);
+            result = await _userManager.AddToRoleAsync(newUser, model.UserType);
 
             data =  new UserRegisterResultDTO { Succeeded = true };
 

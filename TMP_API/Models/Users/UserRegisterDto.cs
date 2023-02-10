@@ -21,5 +21,7 @@ namespace TMP_API.Models.Users
 
         public String? Phone { get; set; }
         public String? Address { get; set; }
+
+        public String UserType { get; set; }
     }
 }
