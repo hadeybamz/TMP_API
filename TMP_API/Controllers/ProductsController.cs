@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using System.Security.Claims;
 using TMP_API.Helpers;
 using TMP_API.Models.Products;
 using TMP_API.Services.IServices;
@@ -75,7 +76,8 @@ public class ProductsController : ControllerBase
 
         try
         {
-            var result = await _productService.PostProduct(value);
+            var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _productService.PostProduct(value, user);
             return Ok(result);
         }
         catch (Exception e)

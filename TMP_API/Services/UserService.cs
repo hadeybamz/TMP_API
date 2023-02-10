@@ -31,57 +31,50 @@ public class UserService : IUserService
 
     public async Task<ApiResponse<UserRegisterResultDTO>> Register(UserRegisterDTO model)
     {
-        try
-        {
-            UserRegisterResultDTO data;
-            IdentityResult result;
+        UserRegisterResultDTO data;
+        IdentityResult result;
 
-            ApplicationUser newUser = new();
-            var check = _userManager.Users.Any(u => u.Email.Equals(model.Email) || u.UserName.Equals(model.Email));
-            if (check) throw new Exception("Email Or Username already taken");
+        ApplicationUser newUser = new();
+        var check = _userManager.Users.Any(u => u.Email.Equals(model.Email) || u.UserName.Equals(model.Email));
+        if (check) throw new Exception("Email Or Username already taken");
             
-            newUser.InjectFrom(model);
+        newUser.InjectFrom(model);
 
-            newUser.UserName = model.Email;
-            result = await _userManager.CreateAsync(newUser, model.Password);
+        newUser.UserName = model.Email;
+        result = await _userManager.CreateAsync(newUser, model.Password);
 
-            if (!result.Succeeded)
+        if (!result.Succeeded)
+        {
+            data = new UserRegisterResultDTO
             {
-                data = new UserRegisterResultDTO
-                {
-                    Succeeded = result.Succeeded,
-                    Errors = result.Errors.Select(e => e.Description)
-                };
-
-                return new ApiResponse<UserRegisterResultDTO>
-                {
-                    Success = result.Succeeded,
-                    Data = data
-                };
-            }
-
-            await SeedRoles();
-            result = await _userManager.AddToRoleAsync(newUser, model.UserType);
-
-            data =  new UserRegisterResultDTO { Succeeded = true };
+                Succeeded = result.Succeeded,
+                Errors = result.Errors.Select(e => e.Description)
+            };
 
             return new ApiResponse<UserRegisterResultDTO>
             {
                 Success = result.Succeeded,
-                Data = data,
-                Message = result.Succeeded ? ResponseMessages.Created : ""
+                Data = data
             };
         }
-        catch (Exception ex)
+
+        await SeedRoles();
+        result = await _userManager.AddToRoleAsync(newUser, model.UserType);
+
+        data =  new UserRegisterResultDTO { Succeeded = true };
+
+        return new ApiResponse<UserRegisterResultDTO>
         {
-            throw new Exception(ResponseMessages.InternalServerError, ex);
-        }
+            Success = result.Succeeded,
+            Data = data,
+            Message = result.Succeeded ? ResponseMessages.Created : ""
+        };
     }
 
     private async Task SeedRoles()
     {
         if (!await _roleManager.RoleExistsAsync(UserRoles.Admin))
-            await _roleManager.CreateAsync(new ApplicationRole(UserRoles.User));
+            await _roleManager.CreateAsync(new ApplicationRole(UserRoles.Admin));
 
         if (!await _roleManager.RoleExistsAsync(UserRoles.User))
             await _roleManager.CreateAsync(new ApplicationRole(UserRoles.User));
@@ -95,38 +88,32 @@ public class UserService : IUserService
 
     public async Task<ApiResponse<UserLoginResultDTO>> Login(UserLoginDTO userLoginDTO)
     {
-        try
-        {
-            var user = await _userManager.FindByEmailAsync(userLoginDTO.Email);
+        var user = await _userManager.FindByEmailAsync(userLoginDTO.Email);
 
-            if (user != null && await _userManager.CheckPasswordAsync(user, userLoginDTO.Password))
+        if (user != null && await _userManager.CheckPasswordAsync(user, userLoginDTO.Password))
+        {
+            var userClaims = await _claimsService.GetUserClaimsAsync(user);
+
+            var token = _jwtTokenService.GetJwtToken(userClaims);
+
+            var data = new UserLoginResultDTO
             {
-                var userClaims = await _claimsService.GetUserClaimsAsync(user);
-
-                var token = _jwtTokenService.GetJwtToken(userClaims);
-
-                var data = new UserLoginResultDTO
+                Succeeded = true,
+                Token = new TokenDTO
                 {
-                    Succeeded = true,
-                    Token = new TokenDTO
-                    {
-                        Token = new JwtSecurityTokenHandler().WriteToken(token),
-                        Expiration = token.ValidTo
-                    }
-                };
+                    Token = new JwtSecurityTokenHandler().WriteToken(token),
+                    Expiration = token.ValidTo
+                }
+            };
 
-                return new ApiResponse<UserLoginResultDTO>
-                {
-                    Success = true,
-                    Data = data
-                };
+            return new ApiResponse<UserLoginResultDTO>
+            {
+                Success = true,
+                Data = data
+            };
 
-            }
-            throw new Exception("The email and password combination was invalid.");
         }
-        catch (Exception ex)
-        {
-            throw new Exception(ResponseMessages.InternalServerError, ex);
-        }
+        throw new Exception("The email and password combination was invalid.");
     }
+    
 }

@@ -17,7 +17,7 @@ public class ProductService : IProductService
         _product = product;
     }
 
-    public async Task<ApiResponse> PostProduct(CreateProductDto model)
+    public async Task<ApiResponse> PostProduct(CreateProductDto model, string user)
     {
         try
         {
@@ -26,8 +26,8 @@ public class ProductService : IProductService
 
             Product value = new();
             value.InjectFrom(model);
-            
 
+            value.UserId = Guid.Parse(user);
             await _product.InsertAsync(value);
 
             return new ApiResponse
