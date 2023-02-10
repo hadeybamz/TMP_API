@@ -1,4 +1,4 @@
-﻿using TMP_API.Models.Orders;
+﻿using TMP_API.Entities;
 
 namespace TMP_API.Repository.IRepository;
 

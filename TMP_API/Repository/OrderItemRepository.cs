@@ -4,11 +4,10 @@ using TMP_API.Repository.IRepository;
 
 namespace TMP_API.Repository;
 
-public class ProductRepository : BaseRepository<Product>, IProductRepository
+public class OrderItemRepository : BaseRepository<OrderItem>, IOrderItemRepository
 {
-    public ProductRepository(DataContext dbContext)
+    public OrderItemRepository(DataContext dbContext)
     {
         _dbContext = dbContext;
     }
-
 }

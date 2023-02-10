@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
+using TMP_API.Entities;
 using TMP_API.Helpers;
 using TMP_API.Models.Products;
-using TMP_API.Models.Products.Dtos;
 using TMP_API.Repository.IRepository;
 using TMP_API.Services.IServices;
 
@@ -17,15 +17,16 @@ public class ProductService : IProductService
         _product = product;
     }
 
-    public async Task<ApiResponse> PostAccount(CreateProductDto model)
+    public async Task<ApiResponse> PostProduct(CreateProductDto model)
     {
         try
         {
+            var check = await _product.Query().AnyAsync(m => m.Name == model.Name);
+            if (check) throw new Exception(ResponseMessages.Exist);
+
             Product value = new();
             value.InjectFrom(model);
             
-            var check = await _product.Query().AnyAsync(m => m.Name == model.Name);
-            if (check) throw new Exception(ResponseMessages.Exist);
 
             await _product.InsertAsync(value);
 
@@ -37,7 +38,7 @@ public class ProductService : IProductService
         }
         catch (Exception ex)
         {
-            throw new Exception(ResponseMessages.InternalServerError);
+            throw new Exception(ResponseMessages.InternalServerError, ex);
         }
     }
 
@@ -86,7 +87,7 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task<ApiResponse<ProductDto>> GetAccount(int Id)
+    public async Task<ApiResponse<ProductDto>> GetProduct(int Id)
     {
         try
         {
@@ -115,19 +116,20 @@ public class ProductService : IProductService
         }
         catch (Exception e)
         {
-            throw new Exception("Unable to retrieve account by id.", e);
+            throw new Exception(ResponseMessages.InternalServerError, e);
         }
     }
 
-    public async Task<ApiResponse> UpdateAccount(CreateProductDto model, int id)
+    public async Task<ApiResponse> UpdateProduct(CreateProductDto model, int id)
     {
         try
         {
             var value = await _product.GetAsync(id);
 
+            if (value == null) throw new Exception(ResponseMessages.NoRecordFound);
+
             value.InjectFrom(model);
 
-            if (value == null) throw new Exception(ResponseMessages.NoRecordFound);
 
             await _product.UpdateAsync(value);
 
@@ -144,7 +146,7 @@ public class ProductService : IProductService
     }
 
 
-    public async Task<ApiResponse> DeleteAccount(int id)
+    public async Task<ApiResponse> DeleteProduct(int id)
     {
         try
         {
@@ -152,9 +154,7 @@ public class ProductService : IProductService
 
             if (value == null) throw new Exception(ResponseMessages.NoRecordFound);
 
-            value.Deleted = true;
-
-            await _product.UpdateAsync(value);
+            await _product.DeleteAsync(value.Id);
 
             return new ApiResponse
             {

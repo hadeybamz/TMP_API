@@ -1,5 +1,5 @@
-﻿using TMP_API.Context;
-using TMP_API.Models.Orders;
+﻿using TMP_API.Data;
+using TMP_API.Entities;
 using TMP_API.Repository.IRepository;
 
 namespace TMP_API.Repository;
