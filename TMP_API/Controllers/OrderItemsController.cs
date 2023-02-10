@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using System.Security.Claims;
 using TMP_API.Helpers;
 using TMP_API.Models.OrderItems;
 using TMP_API.Services.IServices;
@@ -94,7 +95,9 @@ public class OrderItemsController : ControllerBase
 
         try
         {
-            var result = await _orderItemService.PostOrderItem(value);
+            var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var result = await _orderItemService.PostOrderItem(value, user);
             return Ok(result);
         }
         catch (Exception e)

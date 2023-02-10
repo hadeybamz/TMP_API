@@ -5,7 +5,7 @@ namespace TMP_API.Services.IServices
 {
     public interface IOrderService
     {
-        Task<ApiResponse> PostOrder(CreateOrderDto model);
+        Task<ApiResponse> PostOrder(CreateOrderDto model, string user);
         Task<ApiPaginatedResponse<List<OrderDto>>> GetAll(string search, int page, int limit, int skip);
         Task<ApiResponse<OrderDto>> GetOrder(int Id);
         Task<ApiResponse<List<OrderDto>>> GetUserOrder(Guid userId);

@@ -18,7 +18,7 @@ namespace TMP_API.Services.IServices
             _orderItem = orderItem;
         }
 
-        public async Task<ApiResponse> PostOrder(CreateOrderDto model)
+        public async Task<ApiResponse> PostOrder(CreateOrderDto model, string user)
         {
             try
             {
@@ -26,6 +26,7 @@ namespace TMP_API.Services.IServices
                 value.InjectFrom(model);
 
                 value.TotalPrice = model.OrderItems.Sum(s => s.Amount);
+                value.UserId = Guid.Parse(user);
                 await _order.InsertAsync(value);
 
                 foreach (var order in model.OrderItems)

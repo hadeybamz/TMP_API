@@ -18,12 +18,13 @@ public class OrderItemService : IOrderItemService
         _orderItem = orderItem;
     }
 
-    public async Task<ApiResponse> PostOrderItem(CreateOrderItemDto model)
+    public async Task<ApiResponse> PostOrderItem(CreateOrderItemDto model, string user)
     {
         try
         {
             OrderItem value = new();
             value.InjectFrom(model);
+            value.UserId = Guid.Parse(user);
 
             value.Amount = model.Product.Price * model.Quantity;
             await _orderItem.InsertAsync(value);
