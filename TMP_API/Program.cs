@@ -119,7 +119,7 @@ Log.Logger = new LoggerConfiguration()
     services.AddTransient<IOrderItemRepository, OrderItemRepository>();
 
     services.AddTransient<IProductService, ProductService>();
-    services.AddScoped<IUserService, UserService>();
+    services.AddTransient<IUserService, UserService>();
     services.AddTransient<IOrderService, OrderService>();
     services.AddTransient<IOrderItemService, OrderItemService>();
 
