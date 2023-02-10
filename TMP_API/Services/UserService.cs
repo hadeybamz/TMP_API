@@ -40,6 +40,8 @@ public class UserService : IUserService
             var check = _userManager.Users.Any(u => u.Email.Equals(model.Email) || u.UserName.Equals(model.Email));
             if (check) throw new Exception("Email Or Username already taken");
 
+            var count = _userManager.Users.Count();
+            
             newUser.InjectFrom(model);
 
             newUser.UserName = model.Email;
@@ -61,7 +63,7 @@ public class UserService : IUserService
             }
 
             await SeedRoles();
-            result = await _userManager.AddToRoleAsync(newUser, UserRoles.User);
+            result = await _userManager.AddToRoleAsync(newUser, count==0 ? UserRoles.Admin : UserRoles.User);
 
             data =  new UserRegisterResultDTO { Succeeded = true };
 
@@ -107,6 +109,7 @@ public class UserService : IUserService
 
                 var data = new UserLoginResultDTO
                 {
+                    Succeeded = true,
                     Token = new TokenDTO
                     {
                         Token = new JwtSecurityTokenHandler().WriteToken(token),

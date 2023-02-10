@@ -12,7 +12,7 @@ using TMP_API.Data;
 namespace TMPAPI.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230210134348_InitialMigration")]
+    [Migration("20230210185440_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />

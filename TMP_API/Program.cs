@@ -79,7 +79,7 @@ Log.Logger = new LoggerConfiguration()
         {
             Version = "v1",
             Title = "TMP WEB API",
-            Description = "Interview Technical Assessment Solution",
+            Description = "Interview Technical Assessment Solution. To Test UserName = admin@test.com and Password Harmony",
             Contact = new OpenApiContact
             {
                 Name = "Bamgbala Shuaib Adeyemi",
