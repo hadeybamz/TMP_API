@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using TMP_API.Context;
+using TMP_API.Data;
 using TMP_API.Repository.IRepository;
 
 namespace TMP_API.Repository;
@@ -21,12 +21,6 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class, ne
     public async Task InsertAsync(T entity)
     {
         await _dbContext.Set<T>().AddAsync(entity);
-        await _dbContext.SaveChangesAsync();
-    }
-
-    public async Task InsertRangeAsync(IEnumerable<T> entities)
-    {
-        await _dbContext.Set<T>().AddRangeAsync(entities);
         await _dbContext.SaveChangesAsync();
     }
 

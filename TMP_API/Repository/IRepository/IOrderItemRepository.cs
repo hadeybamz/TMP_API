@@ -2,6 +2,6 @@
 
 namespace TMP_API.Repository.IRepository;
 
-public interface IProductRepository : IBaseRepository<Product>
+public interface IOrderItemRepository : IBaseRepository<OrderItem>
 {
 }
