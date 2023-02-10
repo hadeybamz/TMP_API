@@ -97,7 +97,6 @@ public class UserService : IUserService
     {
         try
         {
-            UserLoginResultDTO data;
             var user = await _userManager.FindByEmailAsync(userLoginDTO.Email);
 
             if (user != null && await _userManager.CheckPasswordAsync(user, userLoginDTO.Password))
@@ -106,7 +105,7 @@ public class UserService : IUserService
 
                 var token = _jwtTokenService.GetJwtToken(userClaims);
 
-                data = new UserLoginResultDTO
+                var data = new UserLoginResultDTO
                 {
                     Token = new TokenDTO
                     {
@@ -114,6 +113,13 @@ public class UserService : IUserService
                         Expiration = token.ValidTo
                     }
                 };
+
+                return new ApiResponse<UserLoginResultDTO>
+                {
+                    Success = true,
+                    Data = data
+                };
+
             }
             throw new Exception("The email and password combination was invalid.");
         }
