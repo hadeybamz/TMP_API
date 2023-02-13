@@ -64,16 +64,16 @@ public class OrdersController : ControllerBase
             return BadRequest(new ApiResponse { Success = false, Message = "Request Failed", Reason = e.Message });
         };
     }
-    [HttpGet("[action]/{id}")]
+    [HttpGet("[action]/{user}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<List<OrderDto>>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ApiResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse))]
-    public async Task<IActionResult> GetByUser([FromRoute] Guid userId)
+    public async Task<IActionResult> GetByUser([FromRoute] string user)
     {
         if (!ModelState.IsValid) throw new Exception(ModelState.ToString());
         try
         {
-            var result = await _orderService.GetUserOrder(userId);
+            var result = await _orderService.GetUserOrder(user);
             return Ok(result);
         }
         catch (Exception e)

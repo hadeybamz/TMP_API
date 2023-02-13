@@ -2,7 +2,9 @@
 using Omu.ValueInjecter;
 using TMP_API.Entities;
 using TMP_API.Helpers;
+using TMP_API.Models.OrderItems;
 using TMP_API.Models.Orders;
+using TMP_API.Models.Products;
 using TMP_API.Repository.IRepository;
 
 namespace TMP_API.Services.IServices
@@ -22,10 +24,9 @@ namespace TMP_API.Services.IServices
 
         public async Task<ApiResponse> PostOrder(CreateOrderDto model, string user)
         {
+            int count = 0;
             Order value = new();
             value.InjectFrom(model);
-
-            value.TotalPrice = model.OrderItems.Sum(s => s.Amount);
             var userId = _user.GetUserIdByName(user).Result;
 
             value.UserId = userId;
@@ -33,18 +34,20 @@ namespace TMP_API.Services.IServices
 
             foreach (var order in model.OrderItems)
             {
-                var orderItem = _orderItem.Query().Where(oi => oi.Id == order.Id).FirstOrDefaultAsync().Result;
+                var orderItem = _orderItem.Query().Where(oi => oi.Id == order).FirstOrDefaultAsync().Result;
                 if (orderItem != null)
                 {
                     orderItem.OrderId = value.Id;
                     _orderItem.UpdateAsync(orderItem);
+
+                    count ++;
                 }
             }
 
             return new ApiResponse
             {
                 Success = true,
-                Message = ResponseMessages.Created
+                Message = $"{count} of {model.OrderItems.Count} {ResponseMessages.Created}"
             };
         }
 
@@ -56,7 +59,7 @@ namespace TMP_API.Services.IServices
                 var searchLower = search.ToLower();
                 query = query.Where(q => q.User.FirstName.ToLower().Equals(searchLower) || q.User.LastName.ToLower().Equals(searchLower)
                 || q.User.Address.ToLower().Equals(searchLower) || q.User.PhoneNumber.ToLower().Equals(searchLower))
-                    .OrderByDescending(d => d.DateAdded).Include(o => o.OrderItems).AsQueryable();
+                    .OrderByDescending(d => d.DateAdded).Include(o => o.OrderItems).Include(u => u.User).AsQueryable();
             }
             else
             {
@@ -66,9 +69,20 @@ namespace TMP_API.Services.IServices
             var data = await query.Skip(skip).Take(limit).Select(p => new OrderDto
             {
                 Id = p.Id,
-                OrderItems = p.OrderItems,
-                Customer = p.User,
-                OrderPrice = p.TotalPrice,
+                OrderItems = p.OrderItems.Select(o => new OrderItemDto
+                {
+                    Id = o.Id,
+                    Product = new ProductDto
+                    {
+                        Id = o.Product.Id,
+                        Name = o.Product.Name,
+                        Price = o.Product.Price
+                    },
+                    Quantity = o.Quantity,
+                    Amount = o.Product.Price * o.Quantity
+                }).ToList(),
+                Customer = p.User.UserName,
+                OrderPrice = p.OrderItems.Sum(x=>x.Product.Price * x.Quantity),
                 OrderDate = p.DateAdded
             }).ToListAsync();
 
@@ -92,16 +106,27 @@ namespace TMP_API.Services.IServices
         public async Task<ApiResponse<OrderDto>> GetOrder(int OrderId)
         {
             var data = await _order.Query().Where(x => x.Id == OrderId)
-                .Include(o => o.OrderItems).Select(p => new OrderDto
-            {
-                Id = p.Id,
-                OrderItems = p.OrderItems,
-                Customer = p.User,
-                OrderPrice = p.TotalPrice,
-                OrderDate = p.DateAdded
-            }).FirstOrDefaultAsync();
+                .Include(o => o.OrderItems).Include(u => u.User).Select(p => new OrderDto
+                {
+                    Id = p.Id,
+                    OrderItems = p.OrderItems.Select(o => new OrderItemDto
+                    {
+                        Id = o.Id,
+                        Product = new ProductDto
+                        {
+                            Id = o.Product.Id,
+                            Name = o.Product.Name,
+                            Price = o.Product.Price
+                        },
+                        Quantity = o.Quantity,
+                        Amount = o.Product.Price * o.Quantity
+                    }).ToList(),
+                    Customer = p.User.UserName,
+                    OrderPrice = p.OrderItems.Sum(x=>x.Product.Price * x.Quantity),
+                    OrderDate = p.DateAdded
+                }).FirstOrDefaultAsync();
 
-            if (data != null)
+            if(data != null)
             {
                 return new ApiResponse<OrderDto>
                 {
@@ -117,17 +142,28 @@ namespace TMP_API.Services.IServices
 
         }
          
-        public async Task<ApiResponse<List<OrderDto>>> GetUserOrder(Guid userId)
+        public async Task<ApiResponse<List<OrderDto>>> GetUserOrder(string user)
         {
-            var data = await _order.Query().Where(x => x.UserId == userId)
+            var data = await _order.Query().Where(x => x.User.UserName == user)
                 .Include(o => o.OrderItems).Select(p => new OrderDto
-            {
-                Id = p.Id,
-                OrderItems = p.OrderItems,
-                Customer = p.User,
-                OrderPrice = p.TotalPrice,
-                OrderDate = p.DateAdded
-            }).ToListAsync();
+                {
+                    Id = p.Id,
+                    OrderItems = p.OrderItems.Select(o => new OrderItemDto
+                    {
+                        Id = o.Id,
+                        Product = new ProductDto
+                        {
+                            Id = o.Product.Id,
+                            Name = o.Product.Name,
+                            Price = o.Product.Price
+                        },
+                        Quantity = o.Quantity,
+                        Amount = o.Product.Price * o.Quantity
+                    }).ToList(),
+                    Customer = p.User.UserName,
+                    OrderPrice = p.OrderItems.Sum(x => x.Product.Price * x.Quantity),
+                    OrderDate = p.DateAdded
+                }).ToListAsync();
 
             if (data.Count > 0)
             {
@@ -147,18 +183,31 @@ namespace TMP_API.Services.IServices
         
         public async Task<ApiResponse> UpdateOrder(CreateOrderDto model, int id)
         {
+            int count = 0;
+
             var value = await _order.GetAsync(id);
             if (value == null) throw new Exception(ResponseMessages.NoRecordFound);
 
             value.InjectFrom(model);
 
-            value.TotalPrice = model.OrderItems.Sum(s => s.Amount);
             await _order.UpdateAsync(value);
+
+            foreach (var order in model.OrderItems)
+            {
+                var orderItem = _orderItem.Query().Where(oi => oi.Id == order).FirstOrDefaultAsync().Result;
+                if (orderItem != null)
+                {
+                    orderItem.OrderId = id;
+                    _orderItem.UpdateAsync(orderItem);
+
+                    count++;
+                }
+            }
 
             return (new ApiResponse
             {
                 Success = true,
-                Message = ResponseMessages.Updated
+                Message = $"{count} of {model.OrderItems.Count} {ResponseMessages.Updated}"
             });
         }
         

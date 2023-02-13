@@ -4,6 +4,7 @@ using TMP_API.Entities;
 using TMP_API.Helpers;
 using TMP_API.Models.OrderItems;
 using TMP_API.Models.Orders;
+using TMP_API.Models.Products;
 using TMP_API.Repository.IRepository;
 using TMP_API.Services.IServices;
 
@@ -12,22 +13,31 @@ namespace TMP_API.Services;
 public class OrderItemService : IOrderItemService
 {
     private readonly IOrderItemRepository _orderItem;
+    private readonly IProductRepository _product;
     private readonly IUserService _user;
 
-    public OrderItemService(IOrderItemRepository orderItem, IUserService user)
+    public OrderItemService(IOrderItemRepository orderItem, IProductRepository product, IUserService user)
     {
         _orderItem = orderItem;
+        _product = product;
         _user = user;
     }
 
     public async Task<ApiResponse> PostOrderItem(CreateOrderItemDto model, string user)
     {
+        //Validate Product
+        bool productExist = _product.Query().AnyAsync(p => p.Id == model.ProductId).Result;
+        if (!productExist) throw new Exception("Invalid Product Id");
+
+        var check = await _orderItem.Query().Where(p => p.ProductId == model.ProductId & p.User.UserName == user && p.OrderId == null).FirstOrDefaultAsync();
+        if (check != null) await _orderItem.DeleteAsync(check.Id);
+
         OrderItem value = new();
         value.InjectFrom(model);
         var userId = _user.GetUserIdByName(user).Result;
 
         value.UserId = userId;
-        value.Amount = model.Product.Price * model.Quantity;
+
         await _orderItem.InsertAsync(value);
 
         return new ApiResponse
@@ -43,20 +53,26 @@ public class OrderItemService : IOrderItemService
         if (!string.IsNullOrEmpty(search))
         {
             var searchLower = search.ToLower();
-            query = query.Where(q => q.Product.Name.ToLower().Equals(searchLower)).OrderBy(d => d.DateAdded).Include(o => o.Product).AsQueryable();
+            query = query.Where(q => q.Product.Name.ToLower().Equals(searchLower)).OrderBy(d => d.DateAdded).Include(o => o.Product).Include(o => o.User).AsQueryable();
         }
         else
         {
-            query = query.AsQueryable();
+            query = query.OrderBy(d => d.DateAdded).Include(o => o.Product).Include(o => o.User).AsQueryable();
         }
 
         var data = await query.Skip(skip).Take(limit).Select(p => new OrderItemDto
         {
             Id = p.Id,
-            Product = p.Product,
+            Product = new ProductDto
+            {
+                Id = p.Product.Id,
+                Name = p.Product.Name,
+                Price = p.Product.Price,
+            },
             Quantity = p.Quantity,
-            Amount = p.Amount, 
+            Amount = p.Product.Price * p.Quantity, 
             OrderId = p.OrderId,
+            User = p.User.UserName,
             DateAdded = p.DateAdded
         }).ToListAsync();
 
@@ -80,13 +96,19 @@ public class OrderItemService : IOrderItemService
     public async Task<ApiResponse<OrderItemDto>> GetOrderItem(int id)
     {
         var data = await _orderItem.Query().Where(x => x.Id == id)
-            .Include(o=>o.Product).Select(p => new OrderItemDto
+            .Include(o=>o.Product).Include(p => p.User).Select(p => new OrderItemDto
             {
                 Id = p.Id,
-                Product = p.Product,
+                Product = new ProductDto
+                {
+                    Id = p.Product.Id,
+                    Name = p.Product.Name,
+                    Price = p.Product.Price,
+                },
                 Quantity = p.Quantity,
-                Amount = p.Amount,
+                Amount = p.Product.Price * p.Quantity,
                 OrderId = p.OrderId,
+                User = p.User.UserName,
                 DateAdded = p.DateAdded
             }).FirstOrDefaultAsync();
 
@@ -112,7 +134,6 @@ public class OrderItemService : IOrderItemService
 
         value.InjectFrom(model);
 
-        value.Amount = model.Product.Price * model.Quantity;
         await _orderItem.UpdateAsync(value);
 
         return (new ApiResponse
@@ -138,16 +159,22 @@ public class OrderItemService : IOrderItemService
         };
     }
     
-    public async Task<ApiResponse<List<OrderItemDto>>> GetUserOrderItems(Guid userId)
+    public async Task<ApiResponse<List<OrderItemDto>>> GetUserOrderItems(string userId)
     {
-        var data = await _orderItem.Query().Where(x => x.UserId == userId)
+        var data = await _orderItem.Query().Where(x => x.User.UserName == userId)
             .Include(o => o.Product).Select(p => new OrderItemDto
             {
                 Id = p.Id,
-                Product = p.Product,
+                Product = new ProductDto
+                {
+                    Id = p.Product.Id,
+                    Name = p.Product.Name,
+                    Price = p.Product.Price,
+                },
                 Quantity = p.Quantity,
-                Amount = p.Amount,
+                Amount = p.Product.Price * p.Quantity,
                 OrderId = p.OrderId,
+                User = p.User.UserName,
                 DateAdded = p.DateAdded
             }).ToListAsync();
 

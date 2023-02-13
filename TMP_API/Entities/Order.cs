@@ -10,10 +10,7 @@ public class Order : BaseModel
     [Key]
     public int Id { get; set; }
 
-    [Required]
     public List<OrderItem> OrderItems { get; set; }
 
     public string ShippingAddress { get; set; }
-
-    public Decimal TotalPrice { get; set; }
 }

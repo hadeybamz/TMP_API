@@ -44,12 +44,12 @@ public struct ResponseMessages
 
     public static string Created
     {
-        get { return "Record Created Successfully."; }
+        get { return "Record(s) Created Successfully."; }
     }
     
     public static string Updated
     {
-        get { return "Record Updated Successfully."; }
+        get { return "Record(s) Updated Successfully."; }
     }
     
     public static string Deleted

@@ -10,5 +10,5 @@ public interface IOrderItemService
     Task<ApiResponse<OrderItemDto>> GetOrderItem(int Id);
     Task<ApiResponse> UpdateOrderItem(CreateOrderItemDto model, int id);
     Task<ApiResponse> DeleteOrderItem(int id);
-    Task<ApiResponse<List<OrderItemDto>>> GetUserOrderItems(Guid userId);
+    Task<ApiResponse<List<OrderItemDto>>> GetUserOrderItems(string userId);
 }

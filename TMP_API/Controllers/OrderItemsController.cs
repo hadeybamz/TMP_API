@@ -65,11 +65,11 @@ public class OrderItemsController : ControllerBase
         };
     }
 
-    [HttpGet("[action]/{id}")]
+    [HttpGet("[action]/{userId}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ApiResponse<OrderItemDto>))]
     [ProducesResponseType(StatusCodes.Status500InternalServerError, Type = typeof(ApiResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ApiResponse))]
-    public async Task<IActionResult> GetUserOrderItems(Guid userId)
+    public async Task<IActionResult> GetUserOrderItems(String userId)
     {
         if (!ModelState.IsValid) throw new Exception(ModelState.ToString());
         try
