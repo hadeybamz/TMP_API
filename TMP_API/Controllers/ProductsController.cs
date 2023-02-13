@@ -76,7 +76,7 @@ public class ProductsController : ControllerBase
 
         try
         {
-            var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = User.Identity.Name;
             var result = await _productService.PostProduct(value, user);
             return Ok(result);
         }

@@ -95,8 +95,7 @@ public class OrderItemsController : ControllerBase
 
         try
         {
-            var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
+            var user = User.Identity.Name;
             var result = await _orderItemService.PostOrderItem(value, user);
             return Ok(result);
         }
