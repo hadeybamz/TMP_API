@@ -7,4 +7,5 @@ public interface IUserService
 {
     Task<ApiResponse<UserRegisterResultDTO>> Register(UserRegisterDTO model);
     Task<ApiResponse<UserLoginResultDTO>> Login(UserLoginDTO userLoginDTO);
+    Task<Guid> GetUserIdByName(string email);
 }

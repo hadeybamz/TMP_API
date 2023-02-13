@@ -116,4 +116,11 @@ public class UserService : IUserService
         throw new Exception("The email and password combination was invalid.");
     }
     
+    public async Task<Guid> GetUserIdByName(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+
+        return user.Id;        
+    }
+
 }
