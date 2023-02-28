@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using System.IdentityModel.Tokens.Jwt;
 using TMP_API.Helpers;
 using TMP_API.Models.Users;
 using TMP_API.Services.IServices;

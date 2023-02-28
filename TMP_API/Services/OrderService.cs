@@ -38,9 +38,9 @@ namespace TMP_API.Services.IServices
                 if (orderItem != null)
                 {
                     orderItem.OrderId = value.Id;
-                    _orderItem.UpdateAsync(orderItem);
+                    await _orderItem.UpdateAsync(orderItem);
 
-                    count ++;
+                    count++;
                 }
             }
 
@@ -82,7 +82,7 @@ namespace TMP_API.Services.IServices
                     Amount = o.Product.Price * o.Quantity
                 }).ToList(),
                 Customer = p.User.UserName,
-                OrderPrice = p.OrderItems.Sum(x=>x.Product.Price * x.Quantity),
+                OrderPrice = p.OrderItems.Sum(x => x.Product.Price * x.Quantity),
                 OrderDate = p.DateAdded
             }).ToListAsync();
 
@@ -122,11 +122,11 @@ namespace TMP_API.Services.IServices
                         Amount = o.Product.Price * o.Quantity
                     }).ToList(),
                     Customer = p.User.UserName,
-                    OrderPrice = p.OrderItems.Sum(x=>x.Product.Price * x.Quantity),
+                    OrderPrice = p.OrderItems.Sum(x => x.Product.Price * x.Quantity),
                     OrderDate = p.DateAdded
                 }).FirstOrDefaultAsync();
 
-            if(data != null)
+            if (data != null)
             {
                 return new ApiResponse<OrderDto>
                 {
@@ -141,7 +141,7 @@ namespace TMP_API.Services.IServices
             };
 
         }
-         
+
         public async Task<ApiResponse<List<OrderDto>>> GetUserOrder(string user)
         {
             var data = await _order.Query().Where(x => x.User.UserName == user)
@@ -180,7 +180,7 @@ namespace TMP_API.Services.IServices
             };
 
         }
-        
+
         public async Task<ApiResponse> UpdateOrder(CreateOrderDto model, int id)
         {
             int count = 0;
@@ -198,7 +198,7 @@ namespace TMP_API.Services.IServices
                 if (orderItem != null)
                 {
                     orderItem.OrderId = id;
-                    _orderItem.UpdateAsync(orderItem);
+                    await _orderItem.UpdateAsync(orderItem);
 
                     count++;
                 }
@@ -210,7 +210,7 @@ namespace TMP_API.Services.IServices
                 Message = $"{count} of {model.OrderItems.Count} {ResponseMessages.Updated}"
             });
         }
-        
+
         public async Task<ApiResponse> DeleteOrder(int id)
         {
             var value = await _order.GetAsync(id);

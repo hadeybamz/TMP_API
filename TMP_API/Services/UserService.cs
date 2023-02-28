@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Omu.ValueInjecter;
 using System.IdentityModel.Tokens.Jwt;
-using TMP_API.Entities;
 using TMP_API.Helpers;
 using TMP_API.Models.Users;
-using TMP_API.Repository.IRepository;
 using TMP_API.Services.IServices;
 
 namespace TMP_API.Services;
@@ -37,7 +34,7 @@ public class UserService : IUserService
         ApplicationUser newUser = new();
         var check = _userManager.Users.Any(u => u.Email.Equals(model.Email) || u.UserName.Equals(model.Email));
         if (check) throw new Exception("Email Or Username already taken");
-            
+
         newUser.InjectFrom(model);
 
         newUser.UserName = model.Email;
@@ -61,7 +58,7 @@ public class UserService : IUserService
         await SeedRoles();
         result = await _userManager.AddToRoleAsync(newUser, model.UserType);
 
-        data =  new UserRegisterResultDTO { Succeeded = true };
+        data = new UserRegisterResultDTO { Succeeded = true };
 
         return new ApiResponse<UserRegisterResultDTO>
         {
@@ -115,12 +112,12 @@ public class UserService : IUserService
         }
         throw new Exception("The email and password combination was invalid.");
     }
-    
+
     public async Task<Guid> GetUserIdByName(string email)
     {
         var user = await _userManager.FindByEmailAsync(email);
 
-        return user.Id;        
+        return user.Id;
     }
 
 }

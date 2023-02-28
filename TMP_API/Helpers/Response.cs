@@ -46,22 +46,22 @@ public struct ResponseMessages
     {
         get { return "Record(s) Created Successfully."; }
     }
-    
+
     public static string Updated
     {
         get { return "Record(s) Updated Successfully."; }
     }
-    
+
     public static string Deleted
     {
         get { return "Record Deleted Successfully."; }
     }
-    
+
     public static string NoRecordFound
     {
         get { return "No Record Found."; }
     }
-    
+
     public static string Exist
     {
         get { return "Record Already Exist."; }

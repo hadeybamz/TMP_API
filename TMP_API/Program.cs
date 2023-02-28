@@ -1,9 +1,12 @@
+using AspNetCoreRateLimit;
+using AspNetCoreRateLimit.Redis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using StackExchange.Redis;
 using System.Text;
 using TMP_API.Data;
 using TMP_API.Helpers;
@@ -68,8 +71,21 @@ Log.Logger = new LoggerConfiguration()
         };
     });
 
-    builder.Services.AddTransient<IClaimsService, ClaimsService>();
-    builder.Services.AddTransient<IJwtTokenService, JwtTokenService>();
+    services.AddTransient<IClaimsService, ClaimsService>();
+    services.AddTransient<IJwtTokenService, JwtTokenService>();
+
+    //services.AddDistributedMemoryCache();
+    services.AddMemoryCache();
+    services.Configure<IpRateLimitOptions>(builder.Configuration.GetSection("IpRateLimiting"));
+    services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+    services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+    services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+    services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+    services.AddInMemoryRateLimiting();
+
+    var redisOptions = ConfigurationOptions.Parse(builder.Configuration["ConnectionStrings:Redis"]);
+    services.AddSingleton<IConnectionMultiplexer>(provider => ConnectionMultiplexer.Connect(redisOptions));
+    services.AddRedisRateLimiting();
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     services.AddEndpointsApiExplorer();
@@ -128,6 +144,8 @@ Log.Logger = new LoggerConfiguration()
 var app = builder.Build();
 
 {
+    app.UseIpRateLimiting();
+    
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {

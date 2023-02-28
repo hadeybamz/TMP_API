@@ -1,6 +1,4 @@
-﻿using TMP_API.Entities;
-
-namespace TMP_API.Models.Products;
+﻿namespace TMP_API.Models.Products;
 
 public class ProductDto
 {

@@ -8,11 +8,17 @@
 
   <ItemGroup>
     <Compile Remove="Entities\Customer.cs" />
+    <Compile Remove="Helpers\RateLimitingMiddleware.cs" />
+    <Compile Remove="Models\ClientStatistics.cs" />
+    <Compile Remove="Models\LimitRequests.cs" />
     <Compile Remove="Models\Users\CreateCustomerDto.cs" />
     <Compile Remove="Models\Users\CustomerDto.cs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCoreRateLimit" Version="5.0.0" />
+    <PackageReference Include="AspNetCoreRateLimit.Redis" Version="2.0.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.13" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.2" />

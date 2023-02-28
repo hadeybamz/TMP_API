@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.Text.Json.Serialization;
-using TMP_API.Entities;
 
 namespace TMP_API.Models.Users;
 

@@ -10,7 +10,7 @@ public abstract class BaseRepository<T> : IBaseRepository<T> where T : class, ne
 
     public async Task<T> GetAsync(int id)
     {
-        return await _dbContext.FindAsync<T>(id); 
+        return await _dbContext.FindAsync<T>(id);
     }
 
     public IQueryable<T> Query()

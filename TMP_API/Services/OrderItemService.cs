@@ -3,7 +3,6 @@ using Omu.ValueInjecter;
 using TMP_API.Entities;
 using TMP_API.Helpers;
 using TMP_API.Models.OrderItems;
-using TMP_API.Models.Orders;
 using TMP_API.Models.Products;
 using TMP_API.Repository.IRepository;
 using TMP_API.Services.IServices;
@@ -70,7 +69,7 @@ public class OrderItemService : IOrderItemService
                 Price = p.Product.Price,
             },
             Quantity = p.Quantity,
-            Amount = p.Product.Price * p.Quantity, 
+            Amount = p.Product.Price * p.Quantity,
             OrderId = p.OrderId,
             User = p.User.UserName,
             DateAdded = p.DateAdded
@@ -96,7 +95,7 @@ public class OrderItemService : IOrderItemService
     public async Task<ApiResponse<OrderItemDto>> GetOrderItem(int id)
     {
         var data = await _orderItem.Query().Where(x => x.Id == id)
-            .Include(o=>o.Product).Include(p => p.User).Select(p => new OrderItemDto
+            .Include(o => o.Product).Include(p => p.User).Select(p => new OrderItemDto
             {
                 Id = p.Id,
                 Product = new ProductDto
@@ -142,7 +141,7 @@ public class OrderItemService : IOrderItemService
             Message = ResponseMessages.Updated
         });
     }
-    
+
 
     public async Task<ApiResponse> DeleteOrderItem(int id)
     {
@@ -158,7 +157,7 @@ public class OrderItemService : IOrderItemService
             Message = ResponseMessages.Deleted
         };
     }
-    
+
     public async Task<ApiResponse<List<OrderItemDto>>> GetUserOrderItems(string userId)
     {
         var data = await _orderItem.Query().Where(x => x.User.UserName == userId)
@@ -192,5 +191,5 @@ public class OrderItemService : IOrderItemService
             Message = ResponseMessages.NoRecordFound
         };
     }
-    
+
 }

@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TMP_API.Entities;
 
 namespace TMP_API.Models.Orders
 {

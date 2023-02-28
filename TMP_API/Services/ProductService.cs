@@ -60,7 +60,7 @@ public class ProductService : IProductService
             DateAdded = p.DateAdded
         }).ToListAsync();
 
-        if(data.Count > 0)
+        if (data.Count > 0)
         {
             return new ApiPaginatedResponse<List<ProductDto>>
             {
@@ -86,8 +86,8 @@ public class ProductService : IProductService
             Price = p.Price,
             DateAdded = p.DateAdded
         }).FirstOrDefaultAsync();
-            
-        if(data != null)
+
+        if (data != null)
         {
             return new ApiResponse<ProductDto>
             {
@@ -119,7 +119,7 @@ public class ProductService : IProductService
             Message = ResponseMessages.Updated
         });
     }
-     
+
     public async Task<ApiResponse> DeleteProduct(int id)
     {
         var value = await _product.GetAsync(id);
@@ -134,5 +134,5 @@ public class ProductService : IProductService
             Message = ResponseMessages.Deleted
         };
     }
-    
+
 }

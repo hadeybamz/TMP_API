@@ -1,6 +1,4 @@
-﻿using TMP_API.Entities;
-using TMP_API.Models.Products;
-using TMP_API.Models.Users;
+﻿using TMP_API.Models.Products;
 
 namespace TMP_API.Models.OrderItems
 {

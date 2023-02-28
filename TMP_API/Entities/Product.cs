@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using TMP_API.Models;
-using TMP_API.Models.Users;
 
 namespace TMP_API.Entities;
 

@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using System.Security.Claims;
 using TMP_API.Helpers;
 using TMP_API.Models.Products;
 using TMP_API.Services.IServices;
-using static TMP_API.Controllers.UserController;
 using static TMP_API.Services.UserService;
 
 namespace TMP_API.Controllers;

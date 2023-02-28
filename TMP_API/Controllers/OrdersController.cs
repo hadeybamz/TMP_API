@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using System.Security.Claims;
 using TMP_API.Helpers;
 using TMP_API.Models.Orders;
 using TMP_API.Services.IServices;

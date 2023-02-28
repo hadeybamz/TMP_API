@@ -1,6 +1,4 @@
-﻿using TMP_API.Entities;
-
-namespace TMP_API.Models.OrderItems
+﻿namespace TMP_API.Models.OrderItems
 {
     public class CreateOrderItemDto
     {

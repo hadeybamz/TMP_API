@@ -1,7 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using TMP_API.Models;
-using TMP_API.Models.Users;
 
 namespace TMP_API.Entities;
 
